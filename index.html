@@ -112,7 +112,7 @@ li .a.in{color:#3a9d77}
     </div>
     <div class="wk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="cg" id="calGrid"></div>
-    <div class="legend"><span><s style="background:var(--accbg)"></s>쓰는 기간</span><span><s style="background:var(--hero)"></s>오늘</span><span><s style="background:var(--acc)"></s>그날 쓸 수 있는 돈 (이월 포함)</span><span><s style="background:var(--warn);border-radius:50%"></s>쓴 돈</span><span><s style="background:#3a9d77;border-radius:50%"></s>추가 수입</span></div>
+    <div class="legend"><span><s style="background:var(--accbg)"></s>쓰는 기간</span><span><s style="background:var(--hero)"></s>오늘</span><span><s style="background:var(--acc)"></s>그날 남은 돈 (쓴 돈 뺀 금액)</span><span><s style="background:var(--warn);border-radius:50%"></s>쓴 돈</span><span><s style="background:#3a9d77;border-radius:50%"></s>추가 수입</span></div>
     <div class="detail" id="detail"></div>
   </section>
 
@@ -327,7 +327,7 @@ li .a.in{color:#3a9d77}
         c.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();}});
       })(s);
       var n1=document.createElement("span");n1.textContent=d;c.appendChild(n1);
-      if(P&&eff(P)){var e1=document.createElement("em");e1.textContent=short(allowOn(P,s));if(s>todayS)e1.style.opacity=".6";c.appendChild(e1);}
+      if(P&&eff(P)){var e1=document.createElement("em");var rem=allowOn(P,s)-(sums[s]||0);e1.textContent=short(rem);if(rem<0)e1.style.color="var(--warn)";if(s>todayS)e1.style.opacity=".6";c.appendChild(e1);}
       if(sums[s]||ins[s]){var dt=document.createElement("div");dt.className="dots";if(sums[s]){var d1=document.createElement("span");d1.className="dt";dt.appendChild(d1);}if(ins[s]){var d2=document.createElement("span");d2.className="dt in";dt.appendChild(d2);}c.appendChild(dt);}
       
       g.appendChild(c);
