@@ -82,6 +82,10 @@ li .a{font-weight:700;font-variant-numeric:tabular-nums}
 .dr b{font-variant-numeric:tabular-nums}
 .dr b.w{color:var(--warn)}
 .dr b.g{color:#3a9d77}
+.dsum{background:var(--accbg);border-radius:10px;padding:10px 12px;font-size:14px;margin:4px 0 8px;line-height:1.5}
+.dsum.w{background:var(--warnbg)}
+.dr.calc{font-size:12px;color:var(--sub);padding:0 0 2px 24px;display:block}
+.calcbox{margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:10px}
 .seg{display:flex;gap:6px;margin-bottom:10px}
 .seg button{flex:1;background:transparent;color:var(--sub);border:1px solid var(--line)}
 .seg button.on{background:var(--accbg);color:var(--ink);border-color:var(--acc)}
@@ -112,7 +116,7 @@ li .a.in{color:#3a9d77}
     </div>
     <div class="wk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
     <div class="cg" id="calGrid"></div>
-    <div class="legend"><span><s style="background:var(--accbg)"></s>쓰는 기간</span><span><s style="background:var(--hero)"></s>오늘</span><span><s style="background:var(--acc)"></s>그날 남은 돈 (쓴 돈 뺀 금액)</span><span><s style="background:var(--warn);border-radius:50%"></s>쓴 돈</span><span><s style="background:#3a9d77;border-radius:50%"></s>추가 수입</span></div>
+    <div class="legend"><span><s style="background:var(--accbg)"></s>쓰는 기간</span><span><s style="background:var(--hero)"></s>오늘</span><span><s style="background:var(--acc)"></s>그날 남은 돈 (쓴 돈 뺀 금액)</span><span><s style="background:var(--warn);border-radius:50%"></s>쓴 돈</span><span><s style="background:#3a9d77;border-radius:50%"></s>수입</span></div>
     <div class="detail" id="detail"></div>
   </section>
 
@@ -151,7 +155,7 @@ li .a.in{color:#3a9d77}
   </section>
 
   <section class="card">
-    <div class="seg"><button type="button" id="kOut" class="on">지출</button><button type="button" id="kIn">추가 수입</button></div>
+    <div class="seg"><button type="button" id="kOut" class="on">지출</button><button type="button" id="kIn">수입</button></div>
     <label for="memo" id="recLabel">오늘 쓴 돈 기록하기</label>
     <div class="row" style="margin-bottom:8px">
       <input id="memo" placeholder="메모 (점심, 커피…)" maxlength="30">
@@ -236,7 +240,7 @@ li .a.in{color:#3a9d77}
       var remainC=eff(cur)-spentIn(cur), base=pbase(cur), cr=allow-base, leftD=diff(todayS,cur.end)+1;
       if(remainC<0)sub="이 기간 생활비를 "+fmt(-remainC)+"원 넘게 썼어요";
       else if(todayLeft<0)sub="오늘 "+fmt(-todayLeft)+"원 초과했어요. 초과분은 내일 한도에서 빠져요";
-      else sub="오늘 한도 "+fmt(allow)+"원"+(cr>0?" (이월·추가 수입 포함 "+fmt(cr)+"원)":cr<0?" (초과분 "+fmt(-cr)+"원 차감)":"")+" 중 "+fmt(todaySpent)+"원 사용."+(todayLeft>0&&leftD>1?" 남은 "+fmt(todayLeft)+"원은 내일로 이월돼요":"");
+      else sub="오늘 한도 "+fmt(allow)+"원"+(cr>0?" (이월·수입 포함 "+fmt(cr)+"원)":cr<0?" (초과분 "+fmt(-cr)+"원 차감)":"")+" 중 "+fmt(todaySpent)+"원 사용."+(todayLeft>0&&leftD>1?" 남은 "+fmt(todayLeft)+"원은 내일로 이월돼요":"");
     }
     $("today").textContent=hasB?fmt(Math.max(todayLeft,0)):"0";
     $("hero").classList.toggle("over",hasB&&todayLeft<0);
@@ -245,7 +249,7 @@ li .a.in{color:#3a9d77}
 
     var total=ptotal(sp), spentP=spentIn(sp), remain=eff(sp)-spentP;
     var daysLeft=todayS<sp.start?total:todayS>sp.end?0:diff(todayS,sp.end)+1;
-    $("statTitle").textContent=md(sp.start)+" ~ "+md(sp.end)+" 기간 ("+total+"일)"+(incTotal(sp)?" · 추가 수입 "+fmt(incTotal(sp))+"원 포함":"");
+    $("statTitle").textContent=md(sp.start)+" ~ "+md(sp.end)+" 기간 ("+total+"일)"+(incTotal(sp)?" · 수입 "+fmt(incTotal(sp))+"원 포함":"");
     $("perDay").textContent=fmt(eff(sp)/total)+"원";
     $("left").textContent=fmt(remain)+"원";
     $("left").parentNode.classList.toggle("w",remain<0);
@@ -270,7 +274,7 @@ li .a.in{color:#3a9d77}
     st.items.filter(function(it){return it.d===sel}).reverse().forEach(function(it){
       var li=document.createElement("li");
       var m=document.createElement("div");m.className="m";
-      var t=document.createElement("div");t.textContent=it.m||(it.k?"추가 수입":"지출");
+      var t=document.createElement("div");t.textContent=it.m||(it.k?"수입":"지출");
       var d=document.createElement("div");d.className="d";d.textContent=label(it.d);
       m.appendChild(t);m.appendChild(d);
       var a=document.createElement("div");a.className="a"+(it.k?" in":"");a.textContent=(it.k?"+":"")+fmt(it.a)+"원";
@@ -283,7 +287,7 @@ li .a.in{color:#3a9d77}
     var selName=sel===todayS?"오늘":label(sel);
     $("empty").style.display=ul.children.length?"none":"block";
     $("empty").textContent=selName+" 쓴 기록이 없어요. 금액을 추가하면 이후 날짜의 한도가 다시 계산돼요.";
-    $("recLabel").textContent=(kind==="in"?selName+" 추가 수입 (수입일부터 기간 끝까지 나눠요)":selName+" 쓴 돈 기록하기")+(editId?" (수정 중)":"");
+    $("recLabel").textContent=(kind==="in"?selName+" 수입 (수입일부터 기간 끝까지 나눠요)":selName+" 쓴 돈 기록하기")+(editId?" (수정 중)":"");
     $("kOut").className=kind==="in"?"":"on";$("kIn").className=kind==="in"?"on":"";
     $("memo").placeholder=kind==="in"?"메모 (용돈, 환급…)":"메모 (점심, 커피…)";
     $("addBtn").textContent=editId?"저장":"추가";
@@ -291,24 +295,45 @@ li .a.in{color:#3a9d77}
     drawCal();drawDetail();
   }
 
+  var showCalc=false;
   function drawDetail(){
     var box=$("detail");box.innerHTML="";
     var P=periodAt(sel), t0=document.createElement("div");
     t0.className="dt-t";t0.textContent=label(sel)+(sel===todayS?" (오늘)":"");box.appendChild(t0);
-    function row(cls,l,v,vc){var r=document.createElement("div");r.className="dr "+cls;var a=document.createElement("span");a.textContent=l;var b=document.createElement("b");b.textContent=v;if(vc)b.className=vc;r.appendChild(a);r.appendChild(b);box.appendChild(r);}
+    function row(cls,l,v,vc,par){var r=document.createElement("div");r.className="dr "+cls;var a=document.createElement("span");a.textContent=l;var b=document.createElement("b");b.textContent=v;if(vc)b.className=vc;r.appendChild(a);r.appendChild(b);(par||box).appendChild(r);}
     if(!P||!eff(P)){var h=document.createElement("div");h.className="hint";h.style.margin="0";h.textContent="이 날짜는 생활비가 정해진 기간에 포함되지 않아요.";box.appendChild(h);return;}
     var spent=0, inc=0;
     st.items.forEach(function(it){if(it.d===sel){if(it.k)inc+=it.a;else spent+=it.a;}});
     var allow=allowOn(P,sel), base=pbase(P), extra=allow-base, future=sel>todayS;
+    var nd=sel===todayS?"내일":"다음 날", rem=allow-spent, who=sel===todayS?"오늘":label(sel), lastD=sel===P.end, txt;
+    if(future)txt=who+"은 약 "+fmt(allow)+"원 쓸 수 있을 예정이에요. 아직 오지 않은 날이라 기본 금액 기준 예상이에요.";
+    else if(allow<0&&!spent)txt="지난 날 초과분 때문에 "+who+" 한도가 "+fmt(-allow)+"원 모자란 상태예요."+(lastD?"":" "+nd+" 한도에서도 계속 빠져요.");
+    else if(!spent)txt=who+" "+fmt(allow)+"원 쓸 수 있고 아직 쓴 돈이 없어요."+(lastD?"":" 안 쓰면 "+nd+"로 이월돼요.");
+    else if(allow<=0)txt=who+" 한도가 "+(allow?"이미 "+fmt(-allow)+"원 모자란":"0원인")+" 상태에서 "+fmt(spent)+"원을 써서 모두 "+fmt(-rem)+"원 초과했어요."+(lastD?"":" 초과분은 "+nd+" 한도에서 빠져요.");
+    else if(rem>=0)txt=who+" "+fmt(allow)+"원 쓸 수 있는데 "+fmt(spent)+"원을 써서 "+fmt(rem)+"원 남았어요."+(lastD?"":" 남은 돈은 "+nd+" 한도에 더해져요.");
+    else txt=who+" "+fmt(allow)+"원 쓸 수 있는데 "+fmt(spent)+"원을 써서 "+fmt(-rem)+"원 초과했어요."+(lastD?"":" 초과분은 "+nd+" 한도에서 빠져요.");
+    var sm=document.createElement("div");sm.className="dsum"+((!future&&rem<0)?" w":"");sm.textContent=txt;box.appendChild(sm);
+
     row("big",future?"쓸 수 있는 돈 (예상)":"쓸 수 있는 돈",fmt(allow)+"원");
-    row("sub","기본 하루 금액",fmt(base)+"원");
-    var incPart=incs(P,sel).reduce(function(t,it){var R=diff(it.d,P.end)+1;return t+Math.floor(it.a/R)},0), carry=extra-incPart;
-    if(incPart)row("sub","추가 수입 분","+"+fmt(incPart)+"원");
-    if(carry>0)row("sub","지난 날 남은 돈 이월","+"+fmt(carry)+"원");
-    if(carry<0)row("sub","지난 날 초과분 차감",fmt(carry)+"원");
-    if(spent)row("","쓴 돈","-"+fmt(spent)+"원","w");
-    if(inc)row("","추가 수입 기록","+"+fmt(inc)+"원","g");
-    if(!future)row("big",sel===P.end?"남은 돈":(sel===todayS?"오늘 남은 돈 (내일로 이월)":"그날 남은 돈"),fmt(allow-spent)+"원",allow-spent<0?"w":"");
+    row("","쓴 돈",spent?"-"+fmt(spent)+"원":"0원",spent?"w":"");
+    row("","수입 기록",inc?"+"+fmt(inc)+"원":"0원",inc?"g":"");
+    if(!future)row("big",lastD?"남은 돈":(sel===todayS?"오늘 남은 돈 (내일로 이월)":"그날 남은 돈"),fmt(rem)+"원",rem<0?"w":"");
+
+    var tg=document.createElement("button");tg.type="button";tg.className="ghost";tg.style.cssText="width:100%;margin-top:6px";
+    tg.textContent=showCalc?"계산 접기 ▲":"계산 자세히 보기 ▼";
+    tg.addEventListener("click",function(){showCalc=!showCalc;drawDetail();});
+    box.appendChild(tg);
+    if(showCalc){
+      var cb=document.createElement("div");cb.className="calcbox";box.appendChild(cb);
+      row("sub","기본 하루 금액",fmt(base)+"원",null,cb);
+      var incPart=incs(P,sel).reduce(function(t,it){var R=diff(it.d,P.end)+1;return t+Math.floor(it.a/R)},0), carry=extra-incPart;
+      if(incPart){
+        row("sub","수입 분","+"+fmt(incPart)+"원",null,cb);
+        incs(P,sel).forEach(function(it){var R=diff(it.d,P.end)+1,q=document.createElement("div");q.className="dr calc";q.textContent=md(it.d)+" 수입 "+fmt(it.a)+"원 ÷ "+R+"일 = 하루 +"+fmt(Math.floor(it.a/R))+"원";cb.appendChild(q);});
+      }
+      if(carry>0)row("sub","지난 날 남은 돈 이월","+"+fmt(carry)+"원",null,cb);
+      if(carry<0)row("sub","지난 날 초과분 차감",fmt(carry)+"원",null,cb);
+    }
   }
 
   function drawCal(){
