@@ -191,6 +191,7 @@ li .a.in{color:#3a9d77}
       else if(p&&p.start&&p.end){st={periods:[{id:1,budget:p.budget||0,start:p.start,end:p.end}],items:p.items||[]};}
     }
   }catch(e){}
+  st.periods.forEach(function(P){if(P.carryIn)P.budget+=P.carryIn;delete P.carryIn;delete P.carriedTo;delete P.carriedAmt;});
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
 
   function periodAt(s){var b=null;st.periods.forEach(function(P){if(P.start<=s&&s<=P.end&&(!b||P.start>b.start))b=P});return b}
@@ -202,7 +203,7 @@ li .a.in{color:#3a9d77}
   function incTotal(P){return incs(P,P.end).reduce(function(t,it){return t+it.a},0)}
   function eff(P){return P.budget+incTotal(P)}
   function allowOn(P,s){
-    var inc=incs(P,s).reduce(function(t,it){var R=diff(it.d,P.end)+1;return t+(s>todayS?Math.floor(it.a/R):Math.floor(it.a*(diff(it.d,s)+1)/R))},0);
+    var inc=incs(P,s).reduce(function(t,it){var R=diff(it.d,P.end)+1;return t+Math.floor(it.a/R)*(s>todayS?1:diff(it.d,s)+1)},0);
     return s>todayS?pbase(P)+inc:pbase(P)*(diff(P.start,s)+1)-sum(P.start,s)+inc;
   }
   function sorted(){return st.periods.slice().sort(function(a,b){return a.start<b.start?-1:a.start>b.start?1:0})}
@@ -301,7 +302,10 @@ li .a.in{color:#3a9d77}
     var allow=allowOn(P,sel), base=pbase(P), extra=allow-base, future=sel>todayS;
     row("big",future?"쓸 수 있는 돈 (예상)":"쓸 수 있는 돈",fmt(allow)+"원");
     row("sub","기본 하루 금액",fmt(base)+"원");
-    if(extra!==0)row("sub",future?"추가 수입 분":"이월·추가 수입 분",(extra>0?"+":"")+fmt(extra)+"원");
+    var incPart=incs(P,sel).reduce(function(t,it){var R=diff(it.d,P.end)+1;return t+Math.floor(it.a/R)},0), carry=extra-incPart;
+    if(incPart)row("sub","추가 수입 분","+"+fmt(incPart)+"원");
+    if(carry>0)row("sub","지난 날 남은 돈 이월","+"+fmt(carry)+"원");
+    if(carry<0)row("sub","지난 날 초과분 차감",fmt(carry)+"원");
     if(spent)row("","쓴 돈","-"+fmt(spent)+"원","w");
     if(inc)row("","추가 수입 기록","+"+fmt(inc)+"원","g");
     if(!future)row("big",sel===P.end?"남은 돈":(sel===todayS?"오늘 남은 돈 (내일로 이월)":"그날 남은 돈"),fmt(allow-spent)+"원",allow-spent<0?"w":"");
